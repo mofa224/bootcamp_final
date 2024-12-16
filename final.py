@@ -183,7 +183,8 @@ st.dataframe(feature_importance)
 st.write("Unfortunately our MSE did not significantly improve, however, we do gain some interesting insights through the feature importance. The leading factor is not a necessarily an innate musical feature but rather whether or not if it is in the pop genre. Our decreased MSE is not to be unexpected, it's to be exected that many different factors affect the popularity of asong and to an extent, they also affect each other. For instance, being in the pop genre would imply a certain level of lyricism.")
 
 st.subtitle("Random Forest Model")
-st.write("Next is the random forest model. I have the highest hope for this model given the seemingly non-linear relationship between the variables and the popularity variable. Random Forest effectively models complex, non-linear relationship so therefore, this shoudl yield a better result.")")
+st.write("Next is the random forest model. I have the highest hope for this model given the seemingly non-linear relationship between the variables and the popularity variable. Random Forest effectively models complex, non-linear relationship so therefore, this shoudl yield a better result.")
+
 # Random Forest Model
 code = """# Random Forest Model
 rf_model = RandomForestRegressor(random_state=42, n_estimators=100)
