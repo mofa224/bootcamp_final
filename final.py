@@ -71,7 +71,7 @@ ax.set_ylabel('Frequency')
 st.pyplot(fig)
 
 st.write(
-    We quickly see a major trend here: a vast majority of the data lies in the 0-5 popularity zone: likely due to joke songs, and noisy uploads into Spotify which don't necesarily have the best applicability in the scheme of the data. More importantly, we can see that outside of this huge tail, this is a fairly normally distributed data with a mean of approximately 50.
+    "We quickly see a major trend here: a vast majority of the data lies in the 0-5 popularity zone: likely due to joke songs, and noisy uploads into Spotify which don't necesarily have the best applicability in the scheme of the data. More importantly, we can see that outside of this huge tail, this is a fairly normally distributed data with a mean of approximately 50."
 )
 
 
