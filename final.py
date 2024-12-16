@@ -32,21 +32,6 @@ st.write(
     "This dataset contains a deeply comprehensive 32,833 rows of songs and over 20 columns detailing their musical attributes and metadata. Key features include numerical values such as danceability, energy, and loudness, as well as categorical features like genre. By leveraging these attributes, this project seeks to uncover the extent to which a song's intrinsic musical characteristics influence its popularity."
 )
 
-"""# **Introduction:**
-
-Working on this project blasting Lady Gaga, I reflect on the thousands of songs I've listened to over the course of my life. The music industry has always fascinated me, especially the seemingly random process through which certain songs achieve massive popularity while others, seemingly just as deserving, fade into obscurity. I have a strong upbringing in classical music, listening to Beethoven, Mozart, and the likes. From that it's fairly intuitive to me why certain songs resonate through the ages: they sound good. However, in today's modern world I'm not so certain what affects popularity.
-
-I wanted to explore one question: Is a song's popularity primarily determined by its intrinsic musical qualities, or is it largely a matter of luck, timing, artist brand or other external factors? By delving into the raw data of music looking at factors such as the genre, the "lyricism", tempo and many many other classifications under the song, I hope to be able to find an existence of a trend. I deliberately chose to exclude artist-related variables such as the fame or reputation of the performer. While these are undeniably significant factors in a song's success, I wanted to focus on the musical essence itself: the raw features and stylistic elements that characterize a track. This decision allowed me to investigate whether, at the end of the day, popularity can be linked to the musicality of a song rather than external factors such as promotional efforts or the artist’s star power. Understanding this trend would be deeply interesting for me.
-
-The success of this project would imply an "ideal" song or a genre of work that would be most likely to succeed. The failure would show that the external factors, were indeed the most important.
-
-# **Data Description:**
-
-The data I have chosen to use for this project is sourced from the TidyTuesday Spotify dataset, available in CSV format. The dataset provides detailed information about various songs on Spotify, including their musical attributes, popularity scores, and genre classifications. This includes filtering out low-popularity songs and narrowing the analysis to more specific genres such as pop and rap, which dominate mainstream attention. The rationale for filtering out low-popularity songs is actually very important as there are thousands of songs that are not actually songs including joke submissions, start-up artists are misnomers which will negatively skew the data.
-
-This dataset contains a deeply comprehensive 32,833 rows of songs and over 20 columns detailing their musical attributes and metadata. Key features include numerical values such as danceability, energy, and loudness, as well as categorical features like genre. By leveraging these attributes, this project seeks to uncover the extent to which a song's intrinsic musical characteristics influence its popularity
-"""
-
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
@@ -63,25 +48,32 @@ from sklearn.neighbors import KNeighborsRegressor
 from sklearn.tree import DecisionTreeRegressor, plot_tree
 from sklearn.inspection import permutation_importance
 
+# Load Data
 df = pd.read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2020/2020-01-21/spotify_songs.csv')
-df.head()
 
-df.describe()
+st.subheader("Dataset Preview")
+st.dataframe(df.head())
 
-#max popularity song
-df[df['track_popularity'] == 100]
+st.subheader("Data Exploration")
 
-# Least popular song example
-df[df['track_popularity'] == 0].head()
+st.write("### Max Popularity Song")
+st.dataframe(df[df['track_popularity'] == 100])
 
-plt.figure(figsize=(10, 6))
-sns.histplot(df['track_popularity'], bins=df['track_popularity'].nunique(), kde=True)
-plt.title('Distribution of Track Popularity')
-plt.xlabel('Track Popularity')
-plt.ylabel('Frequency')
-plt.show()
+st.write("### Least Popular Songs")
+st.dataframe(df[df['track_popularity'] == 0].head())
 
-"""We quickly see a major trend here: a vast majority of the data lies in the 0-5 popularity zone: likely due to joke songs, and noisy uploads into Spotify which don't necesarily have the best applicability in the scheme of the data. More importantly, we can see that outside of this huge tail, this is a fairly normally distributed data with a mean of approximately 50."""
+st.write("### Distribution of Track Popularity")
+fig, ax = plt.subplots(figsize=(10, 6))
+sns.histplot(df['track_popularity'], bins=df['track_popularity'].nunique(), kde=True, ax=ax)
+ax.set_title('Distribution of Track Popularity')
+ax.set_xlabel('Track Popularity')
+ax.set_ylabel('Frequency')
+st.pyplot(fig)
+
+st.write(
+    We quickly see a major trend here: a vast majority of the data lies in the 0-5 popularity zone: likely due to joke songs, and noisy uploads into Spotify which don't necesarily have the best applicability in the scheme of the data. More importantly, we can see that outside of this huge tail, this is a fairly normally distributed data with a mean of approximately 50.
+)
+
 
 # Cleaning noisy data
 df_filtered = df[~df['track_popularity'].isin([0,1,2,3,4, 5])]
