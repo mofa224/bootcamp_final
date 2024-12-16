@@ -257,7 +257,7 @@ st.write("The MSE for the decision tree was in the same ball park as the other m
 st.subheader("Conclusion/Next Steps:")
 data = {
     'Method': ['Baseline', 'Linear Regression', 'Random Forest', 'KNN', 'Decision Tree'],
-    'MSE': [baseline_mse, mse, rf_mse, knn_mse, mse_tree],
+    'MSE': [baseline_mse, mse, rf_mse, knn_mse, tree_mse],
 }
 results_df = pd.DataFrame(data)
 st.dataframe(results_df)
