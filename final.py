@@ -224,14 +224,7 @@ y_pred_knn = knn_model.predict(X_test)
 knn_mse = mean_squared_error(y_test, y_pred_knn)
 st.write(f"KNN Model MSE: {knn_mse}")
 
-# Feature importance
-st.write("### KNN Feature Importance")
-perm = permutation_importance(knn_model, X_test, y_test, n_repeats=30, random_state=42)
-perm_importance = pd.DataFrame({'Feature': features, 'Importance': perm.importances_mean})
-print("\nFeature Importance (KNN):")
-st.dataframe(perm_importance)
-
-"""The results for KNN were disappointing. KNN’s high MSE even compared to the baseline and regression, and low feature importance values indicate that it is not well-suited for this particular dataset and the many confounding variables that exist. The lack of localized patterns most likely hindered this model's performance. The struggle to generalize most likely hurt the model's predictive power."""
+"""Runnign KNN's feature importance takes many minutes, as such I'll link it at the end for your reference. The results for KNN were disappointing. KNN’s high MSE even compared to the baseline and regression, and low feature importance values indicate that it is not well-suited for this particular dataset and the many confounding variables that exist. The lack of localized patterns most likely hindered this model's performance. The struggle to generalize most likely hurt the model's predictive power."""
 
 st.subheader("Decision Tree Model")
 code = """# Decision Tree Model
@@ -272,3 +265,10 @@ Further, I think looking on a time horizon such as analyzing how popularity chan
 
 st.subheader("Final Thoughts:")
 st.write("From a learning perspective, this was easily the most complex project I've had to do, combining everythign we've learned over the last year and trying to extrapolate that into this project. While my results unfortunately didn't create the idealized beautiful model that I hoped to have made, it did confirm my initial suspicions which is just as good of a result in my eyes and I deeply enjoyed the process of figuring out the answer to my hypothesis. Overall, I'm excited to acutally expand on this project over the winter and hopefully find some interesting results within the music space!")
+
+# Feature importance
+st.write("### KNN Feature Importance")
+perm = permutation_importance(knn_model, X_test, y_test, n_repeats=30, random_state=42)
+perm_importance = pd.DataFrame({'Feature': features, 'Importance': perm.importances_mean})
+print("\nFeature Importance (KNN):")
+st.dataframe(perm_importance)
