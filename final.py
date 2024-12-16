@@ -76,18 +76,20 @@ st.write(
     "We quickly see a major trend here: a vast majority of the data lies in the 0-5 popularity zone: likely due to joke songs, and noisy uploads into Spotify which don't necesarily have the best applicability in the scheme of the data. More importantly, we can see that outside of this huge tail, this is a fairly normally distributed data with a mean of approximately 50."
 )
 
-
 # Cleaning noisy data
-df_filtered = df[~df['track_popularity'].isin([0,1,2,3,4, 5])]
+df_filtered = df[~df['track_popularity'].isin([0, 1, 2, 3, 4, 5])]
 
-plt.figure(figsize=(10, 6))
-sns.histplot(df_filtered['track_popularity'], bins=df_filtered['track_popularity'].nunique(), kde=True)
-plt.title('Distribution of Track Popularity (0 through 4 removed)')
-plt.xlabel('Track Popularity')
-plt.ylabel('Frequency')
-plt.show()
+st.write("### Distribution After Cleaning")
+fig, ax = plt.subplots(figsize=(10, 6))
+sns.histplot(df_filtered['track_popularity'], bins=df_filtered['track_popularity'].nunique(), kde=True, ax=ax)
+ax.set_title('Distribution of Track Popularity (0 through 5 removed)')
+ax.set_xlabel('Track Popularity')
+ax.set_ylabel('Frequency')
+st.pyplot(fig)
 
-"""Upon removing the first 5 data points which would most likely confound our data, it becomes much more normally distributed. However, it is important to note that having songs in the top 10 percentile is exceedingly rare and seems to be up to chance more than anything."""
+st.write(
+    "Upon removing the first 5 data points which would most likely confound our data, it becomes much more normally distributed. However, it is important to note that having songs in the top 10 percentile is exceedingly rare and seems to be up to chance more than anything."
+)
 
 # Filter out songs with low popularity scores
 df['is_rap'] = (df['playlist_genre'] == 'rap').astype(int)
