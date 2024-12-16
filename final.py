@@ -55,16 +55,16 @@ st.code(code, language='python')
 df = pd.read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2020/2020-01-21/spotify_songs.csv')
 
 st.subheader("Dataset Preview")
+st.write("Here we have a quick preview of the types of the unfiltered data set that we are looking at")
 st.dataframe(df.head())
 st.dataframe(df.describe())
 
-st.subheader("Data Exploration")
-code = """# Explore Max and Least Popular Songs
+code = """# Explore Most and Least Popular Songs
 max_popularity_song = df[df['track_popularity'] == 100]
 least_popular_songs = df[df['track_popularity'] == 0]
 """
 st.code(code, language='python')
-st.write("### Max Popularity Song")
+st.write("### Most Popularity Song")
 st.dataframe(df[df['track_popularity'] == 100])
 st.write("### Least Popular Songs")
 st.dataframe(df[df['track_popularity'] == 0].head())
@@ -79,15 +79,15 @@ ax.set_ylabel('Frequency')
 st.pyplot(fig)
 
 st.write(
-    "We quickly see a major trend here: a vast majority of the data lies in the 0-5 popularity zone: likely due to joke songs, and noisy uploads into Spotify which don't necesarily have the best applicability in the scheme of the data. More importantly, we can see that outside of this huge tail, this is a fairly normally distributed data with a mean of approximately 50."
+    "We quickly see a major trend here: a vast majority of the data lies in the 0-5 popularity zone: likely due to joke songs, and noisy uploads into Spotify which don't necesarily have the best applicability in the scheme of the data. More importantly, we can see that outside of this huge tail, this is a fairly normally distributed data with a median of approximately 50. As such, we're going to remove this set of data as well as the outliers in the top 5, just to avoid moving the median. The rationale behind removing this also stands by commentary from Spotify themselves where it becomes increasingly difficult to gain higher scores due to the difficulty of producing songs that are liked by almost everyone. As such, I am choosing to remove the data points from 96-100"
 )
 
 # Cleaning noisy data
 code = """# Cleaning noisy data
-df = df[~df['track_popularity'].isin([0, 1, 2, 3, 4])]
+df = df[~df['track_popularity'].isin([0, 1, 2, 3, 4, 96, 97, 98, 99, 100])]
 """
 st.code(code, language='python')
-df = df[~df['track_popularity'].isin([0, 1, 2, 3, 4])]
+df = df[~df['track_popularity'].isin([0, 1, 2, 3, 4, 96, 97, 98, 99, 100])]
 
 # Distribution After Cleaning
 st.write("### Distribution After Cleaning")
@@ -99,7 +99,7 @@ ax.set_ylabel('Frequency')
 st.pyplot(fig)
 
 st.write(
-    "Upon removing the first 5 data points which would most likely confound our data, it becomes much more normally distributed. However, it is important to note that having songs in the top 10 percentile is exceedingly rare and seems to be up to chance more than anything."
+    "Upon removal of these 10 data points our data becomes significantly more evenly distributed and much easier for our models to work with."
 )
 # Feature Selection
 code = """# Feature Engineering
