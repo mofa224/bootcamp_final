@@ -205,7 +205,10 @@ feature_importance_rf = feature_importance_rf.sort_values(by='Importance', ascen
 print("\nFeature Importance (Random Forest):")
 st.dataframe(feature_importance_rf)
 
-st.write("""As we predicted, the MSE is *significantly* lower than any other model. The Random Forest model highlights that audio attributes, especially acousticness, speechiness, and valence, are the strongest predictors of track_popularity, contrary to every other model. Binary genre features contribute minimally, suggesting that song characteristics outweigh genre classification in determining popularity. This is particularly interesting given how different of a result it provdies compared to every single other model. Overall, this was the most successful model out of all and was most capable of predicting accurately.""")
+st.write("""As we predicted, the MSE is *significantly* lower than any other model. The Random Forest model highlights that audio attributes, especially acousticness, speechiness, and valence, are the strongest predictors of track_popularity, contrary to every other model.
+Binary genre features contribute minimally, suggesting that song characteristics outweigh genre classification in determining popularity. This is particularly interesting given how different of a result it provides compared to every single other model.
+Overall, this was the most successful model out of all and was most capable of predicting accurately. As will be discussed later, this is the model
+that is best, has the highest regression coefficient and lowest MSE.""")
 
 st.subheader("KNN Model")
 code = """# KNN Model
@@ -254,7 +257,7 @@ st.write("The MSE for the decision tree was in the same ball park as the other m
 st.subheader("Conclusion/Next Steps:")
 data = {
     'Method': ['Baseline', 'Linear Regression', 'Random Forest', 'KNN', 'Decision Tree'],
-    'MSE': [baseline_mse, mse, rf_mse, mse_knn, mse_tree],
+    'MSE': [baseline_mse, mse, rf_mse, knn_mse, mse_tree],
 }
 results_df = pd.DataFrame(data)
 st.dataframe(results_df)
