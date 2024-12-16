@@ -37,8 +37,8 @@ st.write(
 
 st.write(
     "I wanted to explore one question: Is a song's popularity primarily determined by its intrinsic musical qualities, or is it largely a matter of luck, timing, artist brand, or other external factors? By delving into the raw data of music, looking at factors such as the genre, the 'lyricism,' tempo, and many classifications under the song, I hope to find evidence of a trend."
-    "Further, I wanted to challenge myself on this project. Looking at thigns like artist name, popularity of the album would make this project quite simple (aka Taylor Swift is a strong indicator of popular songs)."
-    "Instead, I wanted to look at more confounding variables that might have some bearing on each others, specifically the intrinsic values that I mentioned earlier. This particular choice made my models significantly harder to create, however, I think the results at the end do speak for themselves."
+    " Further, I wanted to challenge myself on this project. Looking at thigns like artist name, popularity of the album would make this project quite simple (aka Taylor Swift is a strong indicator of popular songs)."
+    " Instead, I wanted to look at more confounding variables that might have some bearing on each others, specifically the intrinsic values that I mentioned earlier. This particular choice made my models significantly harder to create, however, I think the results at the end do speak for themselves."
 )
 
 # **Data Description:**
