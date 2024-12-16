@@ -92,7 +92,7 @@ df = df[~df['track_popularity'].isin([0, 1, 2, 3, 4])]
 # Distribution After Cleaning
 st.write("### Distribution After Cleaning")
 fig, ax = plt.subplots(figsize=(10, 6))
-sns.histplot(df_filtered['track_popularity'], bins=df_filtered['track_popularity'].nunique(), kde=True, ax=ax)
+sns.histplot(df['track_popularity'], bins=df['track_popularity'].nunique(), kde=True, ax=ax)
 ax.set_title('Distribution of Track Popularity (0 through 4 removed)')
 ax.set_xlabel('Track Popularity')
 ax.set_ylabel('Frequency')
