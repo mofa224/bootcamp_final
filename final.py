@@ -84,10 +84,10 @@ st.write(
 
 # Cleaning noisy data
 code = """# Cleaning noisy data
-df_filtered = df[~df['track_popularity'].isin([0, 1, 2, 3, 4])]
+df = df[~df['track_popularity'].isin([0, 1, 2, 3, 4])]
 """
 st.code(code, language='python')
-df_filtered = df[~df['track_popularity'].isin([0, 1, 2, 3, 4])]
+df = df[~df['track_popularity'].isin([0, 1, 2, 3, 4])]
 
 # Distribution After Cleaning
 st.write("### Distribution After Cleaning")
