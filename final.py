@@ -37,6 +37,8 @@ st.write(
 
 st.write(
     "I wanted to explore one question: Is a song's popularity primarily determined by its intrinsic musical qualities, or is it largely a matter of luck, timing, artist brand, or other external factors? By delving into the raw data of music, looking at factors such as the genre, the 'lyricism,' tempo, and many classifications under the song, I hope to find evidence of a trend."
+    "Further, I wanted to challenge myself on this project. Looking at thigns like artist name, popularity of the album would make this project quite simple (aka Taylor Swift is a strong indicator of popular songs)."
+    "Instead, I wanted to look at more confounding variables that might have some bearing on each others, specifically the intrinsic values that I mentioned earlier. This particular choice made my models significantly harder to create, however, I think the results at the end do speak for themselves."
 )
 
 # **Data Description:**
@@ -270,6 +272,9 @@ These two models, I felt were unlikely to perform as well, but I was surprised a
 A couple key factors appeared. **Acousticness** was particularly strong in all models followed by **danceability/valence** in relation to the other factors, with stronger correlation to popularity, particularly in the Decision Tree and Random Forest models. 
 Further, being a **pop song**, while weak as an absolute measure, stood out amongst all genres that were tested. This aligns rather strongly with general sentiment on music today. Moreso, we saw an interesting outcome of this modeling. In particular, all models focused on 
 music genres as the most predictive factor for popularity **except for Random Forest**. This inherently makes sense, as genre will affect popularity, but these models failed to identify the sub-musical factors that affect each genre. RFM was particularly good at focusing on the inherent musical qualities and this paid off in its ability to have the lowest MSE.
+
+What we were able to identify at the end of the day, was the importance of a) being in a good genre of music (pop) and b) natural sounds from acoustic music is more popular, this actually tracks with the genres that were also most popular which implies a level of correlation.
+Finally, the more excitable a song, the more popular. This seems fairly intuitive but an interesting observation nonetheless.
 
 I have always enjoyed music for the actual intrinsic values, however, when looking at modern popular music obviously other factors must come into play. I hope to examine more external variables such as artist recognition, playlist placements, streaming counts, and release date trends in a future project. These would more likley be stronger predictive factors than the intrinsic factors we looked at today. 
 Further, I think looking on a time horizon such as analyzing how popularity changes over time by incorporating release year or weekly streaming trends could be really interesting, and seeing what sparks the interest in a song. A time-series analysis could capture evolving audience preferences and seasonal effects.Lastly, I think I want to simplify this project: I had many, many variables throughout the whole project which really made modeling and predicting quite difficult. Down the road, maybe looking at one artist, or songs from one period and analyzing what qualities make them attractive would truly be able to provide strong predictive power.""")
