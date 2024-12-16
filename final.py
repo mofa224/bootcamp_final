@@ -225,12 +225,10 @@ st.write(f"KNN Model MSE: {knn_mse}")
 st.write("### KNN Feature Importance")
 perm = permutation_importance(knn_model, X_test, y_test, n_repeats=30, random_state=42)
 perm_importance = pd.DataFrame({'Feature': features, 'Importance': perm.importances_mean})
-fig, ax = plt.subplots(figsize=(10, 6))
-sns.barplot(data=perm_importance.sort_values(by='Importance', ascending=False), x='Importance', y='Feature', ax=ax)
-ax.set_title('KNN Feature Importance')
-st.pyplot(fig)
+print("\nFeature Importance (KNN):")
+st.dataframe(perm_importance)
 
-"""The results for KNN were disappointing. KNN’s high MSE even compared to the baseline and regression, and low feature importance values indicate that it is not well-suited for this particular dataset and the many confounding variables that exist. The lack of localized patterns most likely hindered this model's performance. The struggle to generalize really hurt."""
+"""The results for KNN were disappointing. KNN’s high MSE even compared to the baseline and regression, and low feature importance values indicate that it is not well-suited for this particular dataset and the many confounding variables that exist. The lack of localized patterns most likely hindered this model's performance. The struggle to generalize most likely hurt the model's predictive power."""
 
 st.subheader("Decision Tree Model")
 code = """# Decision Tree Model
@@ -254,11 +252,18 @@ feature_importance_tree
 st.write("The MSE for the decision tree was in the same ball park as the other models, outside of RFM.  One key issue is the reliance on a small number of dominant features, particularly acousticness and is_pop, while completely ignoring others like speechiness, valence, and is_rap. This overemphasis on a few features probably led to overfitting, where the model performed well on the training set but failed to generalize on the test set.")
 
 st.subheader("Conclusion/Next Steps:")
+data = {
+    'Method': ['Baseline', 'Linear Regression', 'Random Forest', 'KNN', 'Decision Tree'],
+    'MSE': [baseline_mse, mse, rf_mse, mse_knn, mse_tree],
+}
+results_df = pd.DataFrame(data)
+st.dataframe(results_df)
 st.write("""In this analysis, we explored various predictive models—including Linear Regression, Multiple Regression, Random Forest, K-Nearest Neighbors (KNN), and Decision Tree—to understand what factors might influence a song's popularity. While none of the models produced exceptionally low MSEs, this outcome aligns with the initial expectations of the project. Predicting song popularity is inherently complex, as external factors like marketing, cultural influence, and artist fame play a significant role—elements that cannot be captured purely through numerical and genre-based features. While the models themselves were not great at predicting the popularity of the songs, we were able to very rouhgly figure out what might aid.
 
-However, a couple key factors did appear. **Acousticness and danceability** were particularly strong in relation to the other factors when conducitng feature importance, with stronger correlation with popularity, particularly in the Decision Tree and Random Forest models. Further, being a **pop song**, while weak as an absolute measure, stood out amongst all genres that were tested. This alings rather strongly with general sentiment on music today.
+A couple key factors did appear. **Acousticness** was particularly strong in all models followed by **danceability/valence** in relation to the other factors, with stronger correlation with popularity, particularly in the Decision Tree and Random Forest models. 
+Further, being a **pop song**, while weak as an absolute measure, stood out amongst all genres that were tested. This aligns rather strongly with general sentiment on music today. Moreso, we saw an interesting outcome of this modeling. In particular, all models focused on 
+music genres as the most predictive factor for popularity. This inherently makes sense, but obviously within each genre musical factors must affect them. RFM was particularly good at focusing on the inherent musical qualities and this paid off in its ability to have the lowest MSE.
 
-On a broader level, I learned the importance of balancing model complexity with interpretability. Random Forest consistently outperformed others, demonstrating the power of ensemble methods to capture non-linear relationships, while simpler models like Linear Regression established a baseline for comparison.""")
 
 st.write("""I've always enjoyed music for the actual intrinsic values, however, when looking at modern popular music obviously other factors must come into play. I hope to examine more external variables such as artist recognition, playlist placements, streaming counts, and release date trends in a future project. These would more likley be stronger predictive factors than the intrinsic factors we looked at today.
 
