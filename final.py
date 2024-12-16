@@ -7,6 +7,21 @@ Original file is located at
     https://colab.research.google.com/drive/1-r1qOhNN3PT2GVHd0TJBXuIbkMGGPcaG
 """
 import streamlit as st
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+import statsmodels.api as sm
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import OneHotEncoder, StandardScaler
+from sklearn.model_selection import cross_val_score
+from sklearn.linear_model import LinearRegression
+from sklearn.ensemble import RandomForestRegressor
+from sklearn.metrics import mean_squared_error, r2_score
+import sklearn.metrics as metrics
+from sklearn.neighbors import KNeighborsRegressor
+from sklearn.tree import DecisionTreeRegressor, plot_tree
+from sklearn.inspection import permutation_importance
 
 st.title('My Final Project!')
 st.subheader('Marshal Wang')
@@ -33,37 +48,27 @@ st.write(
 st.write(
     "This dataset contains a deeply comprehensive 32,833 rows of songs and over 20 columns detailing their musical attributes and metadata. Key features include numerical values such as danceability, energy, and loudness, as well as categorical features like genre. By leveraging these attributes, this project seeks to uncover the extent to which a song's intrinsic musical characteristics influence its popularity."
 )
-
-import pandas as pd
-import numpy as np
-import matplotlib.pyplot as plt
-import seaborn as sns
-import statsmodels.api as sm
-from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import OneHotEncoder, StandardScaler
-from sklearn.model_selection import cross_val_score
-from sklearn.linear_model import LinearRegression
-from sklearn.ensemble import RandomForestRegressor
-from sklearn.metrics import mean_squared_error, r2_score
-import sklearn.metrics as metrics
-from sklearn.neighbors import KNeighborsRegressor
-from sklearn.tree import DecisionTreeRegressor, plot_tree
-from sklearn.inspection import permutation_importance
-
 # Load Data
+code = """# Load Data
+df = pd.read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2020/2020-01-21/spotify_songs.csv')"""
+st.code(code, language='python')
 df = pd.read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2020/2020-01-21/spotify_songs.csv')
 
 st.subheader("Dataset Preview")
 st.dataframe(df.head())
 
 st.subheader("Data Exploration")
-
+code = """# Explore Max and Least Popular Songs
+max_popularity_song = df[df['track_popularity'] == 100]
+least_popular_songs = df[df['track_popularity'] == 0]
+"""
+st.code(code, language='python')
 st.write("### Max Popularity Song")
 st.dataframe(df[df['track_popularity'] == 100])
-
 st.write("### Least Popular Songs")
 st.dataframe(df[df['track_popularity'] == 0].head())
 
+# Distribution of Track Popularity
 st.write("### Distribution of Track Popularity")
 fig, ax = plt.subplots(figsize=(10, 6))
 sns.histplot(df['track_popularity'], bins=df['track_popularity'].nunique(), kde=True, ax=ax)
@@ -77,8 +82,13 @@ st.write(
 )
 
 # Cleaning noisy data
+code = """# Cleaning noisy data
+df_filtered = df[~df['track_popularity'].isin([0, 1, 2, 3, 4, 5])]
+"""
+st.code(code, language='python')
 df_filtered = df[~df['track_popularity'].isin([0, 1, 2, 3, 4, 5])]
 
+# Distribution After Cleaning
 st.write("### Distribution After Cleaning")
 fig, ax = plt.subplots(figsize=(10, 6))
 sns.histplot(df_filtered['track_popularity'], bins=df_filtered['track_popularity'].nunique(), kde=True, ax=ax)
@@ -90,28 +100,42 @@ st.pyplot(fig)
 st.write(
     "Upon removing the first 5 data points which would most likely confound our data, it becomes much more normally distributed. However, it is important to note that having songs in the top 10 percentile is exceedingly rare and seems to be up to chance more than anything."
 )
-
-# Filter out songs with low popularity scores
+# Feature Selection
+code = """# Feature Engineering
 df['is_rap'] = (df['playlist_genre'] == 'rap').astype(int)
 df['is_pop'] = (df['playlist_genre'] == 'pop').astype(int)
 df['is_rock'] = (df['playlist_genre'] == 'rock').astype(int)
-
-#Drop playlist column
-df.describe()
-
-# Create my features variable
-features = ['danceability', 'energy', 'speechiness', 'acousticness', 'valence']+['is_rap', 'is_pop', 'is_rock']
-
+features = ['danceability', 'energy', 'speechiness', 'acousticness', 'valence', 'is_rap', 'is_pop', 'is_rock']
 X = df[features]
 y = df['track_popularity']
+"""
+st.code(code, language='python')
+df['is_rap'] = (df['playlist_genre'] == 'rap').astype(int)
+df['is_pop'] = (df['playlist_genre'] == 'pop').astype(int)
+df['is_rock'] = (df['playlist_genre'] == 'rock').astype(int)
+features = ['danceability', 'energy', 'speechiness', 'acousticness', 'valence', 'is_rap', 'is_pop', 'is_rock']
+X = df[features]
+y = df['track_popularity']
+df.describe()
 
-# Split the data into training and testing sets. I chose to sue the standard test sample of 20% and random state of 42
+# Data Splitting
+code = """# Train-Test Split
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
-
+"""
+st.code(code, language='python')
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 # Normalize the data to ensure models like KNN have the best opportunity to succeed
+code = """# Normalize the data to ensure models like KNN have the best opportunity to succeed 
 scaler = StandardScaler()
 X_train = scaler.fit_transform(X_train)
 X_test = scaler.transform(X_test)
+"""
+scaler = StandardScaler()
+X_train = scaler.fit_transform(X_train)
+X_test = scaler.transform(X_test)
+
+# Model Training and Evaluation
+st.subheader("Model Training")
 
 """For my baseline model, I chose to use a mean effectively implying no correlation between the two. Further, I chose to use mean squared error or MSE as my benchmark of the "best" model."""
 
@@ -127,42 +151,48 @@ print(f"Baseline Model - MSE: {baseline_mse}")
 """
 
 #Linear Regression
+code = """# Linear Regression
 model = LinearRegression()
 model.fit(X_train, y_train)
-
-# Make predictions on the test set
 y_pred = model.predict(X_test)
-
-# Evaluate the model
 mse = mean_squared_error(y_test, y_pred)
-r2 = r2_score(y_test, y_pred)
-
-print(f"Linear Regression Model - MSE: {mse}")
+"""
+st.code(code, language='python')
+model = LinearRegression()
+model.fit(X_train, y_train)
+y_pred = model.predict(X_test)
+mse = mean_squared_error(y_test, y_pred)
+st.write(f"Linear Regression MSE: {mse}")
 
 # Feature Importance
 feature_importance = pd.DataFrame({'Feature': features, 'Importance': abs(model.coef_)})
 feature_importance = feature_importance.sort_values(by='Importance', ascending=False)
-feature_importance
+st.dataframe(feature_importance)
 
-"""Unfortunately our MSE is not significantly improved, however, we do gain some interesting insights through the feature importance. The leading factor is not a necessarily an innate musical feature but rather whether or not if it is in the pop genre. Our decreased MSE is not to be unexpected, it's to be exected that many different factors affect the popularity of asong and to an extent, they also affect each other. For instance, being in the pop genre would imply a certain level of lyricism.
+"""Unfortunately our MSE did not significantly improved, however, we do gain some interesting insights through the feature importance. The leading factor is not a necessarily an innate musical feature but rather whether or not if it is in the pop genre. Our decreased MSE is not to be unexpected, it's to be exected that many different factors affect the popularity of asong and to an extent, they also affect each other. For instance, being in the pop genre would imply a certain level of lyricism.
 
 Next is the random forest model. I have the highest hope for this model given the seemingly non-linear relationship between the variables and the popularity variable. Random Forest effectively models complex, non-linear relationship so therefore, this shoudl yield a better result.
 """
 
 # Random Forest Model
+code = """# Random Forest Model
 rf_model = RandomForestRegressor(random_state=42, n_estimators=100)
 rf_model.fit(X_train, y_train)
 y_pred_rf = rf_model.predict(X_test)
-
 rf_mse = mean_squared_error(y_test, y_pred_rf)
-rf_r2 = r2_score(y_test, y_pred_rf)
+"""
+st.code(code, language='python')
+rf_model = RandomForestRegressor(random_state=42, n_estimators=100)
+rf_model.fit(X_train, y_train)
+y_pred_rf = rf_model.predict(X_test)
+rf_mse = mean_squared_error(y_test, y_pred_rf)
+st.write(f"Random Forest MSE: {rf_mse}")
 
-print(f"Random Forest - MSE: {rf_mse}")
 # Feature Importance using coefficients
 feature_importance_rf = pd.DataFrame({'Feature': X.columns, 'Importance': rf_model.feature_importances_})
 feature_importance_rf = feature_importance_rf.sort_values(by='Importance', ascending=False)
 print("\nFeature Importance (Random Forest):")
-feature_importance_rf
+st.dataframe(feature_importance_rf)
 
 """As we predicted, the MSE is *significantly* lower than any other model. The Random Forest model highlights that audio attributes, especially acousticness, speechiness, and valence, are the strongest predictors of track_popularity, contrary to every other model. Binary genre features contribute minimally, suggesting that song characteristics outweigh genre classification in determining popularity. This is particularly interesting given how different of a result it provdies compared to every single other model. Overall, this was the most successful model out of all and was most capable of predicting accurately."""
 
