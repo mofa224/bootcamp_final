@@ -150,7 +150,7 @@ st.subheader("Baseline Model")
 """For my baseline model, I chose to use a mean effectively implying no correlation between the two. Further, I chose to use mean squared error or MSE as my benchmark of the "best" model."""
 
 # Baseline Model
-code = """#baseline_prediction = np.mean(df['track_popularity'])
+code = """#Baseline Prediction
 baseline_mse = mean_squared_error(y_test, [baseline_prediction] * len(y_test))
 """
 st.code(code, language='python')
@@ -208,38 +208,43 @@ st.dataframe(feature_importance_rf)
 st.write("""As we predicted, the MSE is *significantly* lower than any other model. The Random Forest model highlights that audio attributes, especially acousticness, speechiness, and valence, are the strongest predictors of track_popularity, contrary to every other model. Binary genre features contribute minimally, suggesting that song characteristics outweigh genre classification in determining popularity. This is particularly interesting given how different of a result it provdies compared to every single other model. Overall, this was the most successful model out of all and was most capable of predicting accurately.""")
 
 st.subheader("KNN Model")
-# Initialize and train a KNN regressor model
+code = """# KNN Model
+knn_model = KNeighborsRegressor(n_neighbors=5)
+knn_model.fit(X_train, y_train)
+y_pred_knn = knn_model.predict(X_test)
+knn_mse = mean_squared_error(y_test, y_pred_knn)
+"""
+st.code(code, language='python')
 knn_model = KNeighborsRegressor(n_neighbors=50)
 knn_model.fit(X_train, y_train)
-
-# Make predictions on the test set
 y_pred_knn = knn_model.predict(X_test)
-
-# Evaluate the model
-mse_knn = mean_squared_error(y_test, y_pred_knn)
-print(f"KNN Mean Squared Error: {mse_knn}")
+knn_mse = mean_squared_error(y_test, y_pred_knn)
+st.write(f"KNN Model MSE: {knn_mse}")
 
 # Feature importance
+st.write("### KNN Feature Importance")
 perm = permutation_importance(knn_model, X_test, y_test, n_repeats=30, random_state=42)
-pd.DataFrame({'Feature': X.columns, 'Importance': perm.importances_mean})
+perm_importance = pd.DataFrame({'Feature': features, 'Importance': perm.importances_mean})
+fig, ax = plt.subplots(figsize=(10, 6))
+sns.barplot(data=perm_importance.sort_values(by='Importance', ascending=False), x='Importance', y='Feature', ax=ax)
+ax.set_title('KNN Feature Importance')
+st.pyplot(fig)
 
 """The results for KNN were disappointing. KNN’s high MSE even compared to the baseline and regression, and low feature importance values indicate that it is not well-suited for this particular dataset and the many confounding variables that exist. The lack of localized patterns most likely hindered this model's performance. The struggle to generalize really hurt."""
 
 st.subheader("Decision Tree Model")
+code = """# Decision Tree Model
 tree_model = DecisionTreeRegressor(random_state=42, max_depth=4)
 tree_model.fit(X_train, y_train)
-
-# Make predictions on the test set
 y_pred_tree = tree_model.predict(X_test)
-
-# Evaluate the model
-mse_tree = mean_squared_error(y_test, y_pred_tree)
-print(f"Decision Tree Mean Squared Error: {mse_tree}")
-
-# Plot the decision tree
-plt.figure(figsize=(20, 10))
-plot_tree(tree_model, filled=True, feature_names=X.columns, rounded=True)
-plt.show()
+tree_mse = mean_squared_error(y_test, y_pred_tree)
+"""
+st.code(code, language='python')
+tree_model = DecisionTreeRegressor(random_state=42, max_depth=4)
+tree_model.fit(X_train, y_train)
+y_pred_tree = tree_model.predict(X_test)
+tree_mse = mean_squared_error(y_test, y_pred_tree)
+st.write(f"Decision Tree MSE: {tree_mse}")
 
 feature_importance_tree = pd.DataFrame({'Feature': X.columns, 'Importance': tree_model.feature_importances_})
 feature_importance_tree = feature_importance_tree.sort_values(by='Importance', ascending=False)
