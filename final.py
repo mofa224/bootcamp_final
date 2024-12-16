@@ -56,6 +56,7 @@ df = pd.read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/
 
 st.subheader("Dataset Preview")
 st.dataframe(df.head())
+st.dataframe(df.describe())
 
 st.subheader("Data Exploration")
 code = """# Explore Max and Least Popular Songs
@@ -83,16 +84,16 @@ st.write(
 
 # Cleaning noisy data
 code = """# Cleaning noisy data
-df_filtered = df[~df['track_popularity'].isin([0, 1, 2, 3, 4, 5])]
+df_filtered = df[~df['track_popularity'].isin([0, 1, 2, 3, 4])]
 """
 st.code(code, language='python')
-df_filtered = df[~df['track_popularity'].isin([0, 1, 2, 3, 4, 5])]
+df_filtered = df[~df['track_popularity'].isin([0, 1, 2, 3, 4])]
 
 # Distribution After Cleaning
 st.write("### Distribution After Cleaning")
 fig, ax = plt.subplots(figsize=(10, 6))
 sns.histplot(df_filtered['track_popularity'], bins=df_filtered['track_popularity'].nunique(), kde=True, ax=ax)
-ax.set_title('Distribution of Track Popularity (0 through 5 removed)')
+ax.set_title('Distribution of Track Popularity (0 through 4 removed)')
 ax.set_xlabel('Track Popularity')
 ax.set_ylabel('Frequency')
 st.pyplot(fig)
@@ -105,7 +106,7 @@ code = """# Feature Engineering
 df['is_rap'] = (df['playlist_genre'] == 'rap').astype(int)
 df['is_pop'] = (df['playlist_genre'] == 'pop').astype(int)
 df['is_rock'] = (df['playlist_genre'] == 'rock').astype(int)
-features = ['danceability', 'energy', 'speechiness', 'acousticness', 'valence', 'is_rap', 'is_pop', 'is_rock']
+features = ['danceability', 'energy', 'speechiness', 'acousticness', 'valence']+['is_rap', 'is_pop', 'is_rock']
 X = df[features]
 y = df['track_popularity']
 """
@@ -116,7 +117,7 @@ df['is_rock'] = (df['playlist_genre'] == 'rock').astype(int)
 features = ['danceability', 'energy', 'speechiness', 'acousticness', 'valence', 'is_rap', 'is_pop', 'is_rock']
 X = df[features]
 y = df['track_popularity']
-df.describe()
+st.dataframe(df.describe())
 
 # Data Splitting
 code = """# Train-Test Split
