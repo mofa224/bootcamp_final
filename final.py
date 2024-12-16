@@ -9,8 +9,9 @@ Original file is located at
 import streamlit as st
 
 st.title('My Final Project!')
-st.subheader('Marshal Wang', align ='right')
-st.subheader('December 16, 2024', align ='right')
+st.subheader('Marshal Wang')
+st.write('December 16, 2024')
+
 # **Introduction:**
 st.subheader("Introduction")
 st.write(
