@@ -64,7 +64,7 @@ max_popularity_song = df[df['track_popularity'] == 100]
 least_popular_songs = df[df['track_popularity'] == 0]
 """
 st.code(code, language='python')
-st.write("### Most Popularity Song")
+st.write("### Most Popular Song")
 st.dataframe(df[df['track_popularity'] == 100])
 st.write("### Least Popular Songs")
 st.dataframe(df[df['track_popularity'] == 0].head())
@@ -79,15 +79,15 @@ ax.set_ylabel('Frequency')
 st.pyplot(fig)
 
 st.write(
-    "We quickly see a major trend here: a vast majority of the data lies in the 0-5 popularity zone: likely due to joke songs, and noisy uploads into Spotify which don't necesarily have the best applicability in the scheme of the data. More importantly, we can see that outside of this huge tail, this is a fairly normally distributed data with a median of approximately 50. As such, we're going to remove this set of data as well as the outliers in the top 5, just to avoid moving the median. The rationale behind removing this also stands by commentary from Spotify themselves where it becomes increasingly difficult to gain higher scores due to the difficulty of producing songs that are liked by almost everyone. As such, I am choosing to remove the data points from 96-100"
+    "We quickly see a major trend here: a vast majority of the data lies in the 0-10 popularity zone: likely due to joke songs, and noisy uploads into Spotify which don't necesarily have the best applicability in the scheme of the data. More importantly, we can see that outside of this huge tail, this is a fairly normally distributed data with a median of approximately 50. As such, we're going to remove this set of data as well as the outliers in the top 10, just to avoid moving the median. The rationale behind removing this also stands by commentary from Spotify themselves where it becomes increasingly difficult to gain higher scores due to the difficulty of producing songs that are liked by almost everyone. As such, I am choosing to remove the data points from 96-100"
 )
 
 # Cleaning noisy data
 code = """# Cleaning noisy data
-df = df[~df['track_popularity'].isin([0, 1, 2, 3, 4, 96, 97, 98, 99, 100])]
+df = df[(df['track_popularity'] >= 10) & (df['track_popularity'] <= 90)]
 """
 st.code(code, language='python')
-df = df[~df['track_popularity'].isin([0, 1, 2, 3, 4, 96, 97, 98, 99, 100])]
+df = df[(df['track_popularity'] >= 10) & (df['track_popularity'] <= 90)]
 
 # Distribution After Cleaning
 st.write("### Distribution After Cleaning")
@@ -99,14 +99,17 @@ ax.set_ylabel('Frequency')
 st.pyplot(fig)
 
 st.write(
-    "Upon removal of these 10 data points our data becomes significantly more evenly distributed and much easier for our models to work with."
+    "Upon removal of these data points our data becomes significantly more evenly distributed and much easier for our models to work with."
 )
 # Feature Selection
 code = """# Feature Engineering
 df['is_rap'] = (df['playlist_genre'] == 'rap').astype(int)
 df['is_pop'] = (df['playlist_genre'] == 'pop').astype(int)
 df['is_rock'] = (df['playlist_genre'] == 'rock').astype(int)
-features = ['danceability', 'energy', 'speechiness', 'acousticness', 'valence']+['is_rap', 'is_pop', 'is_rock']
+df['is_edm'] = (df['playlist_genre'] == 'edm').astype(int)
+df['is_latin'] = (df['playlist_genre'] == 'latin').astype(int)
+df['is_rnb'] = (df['playlist_genre'] == 'rnb').astype(int)
+features = ['danceability', 'energy', 'speechiness', 'acousticness', 'valence']+['is_rap', 'is_pop', 'is_rock', 'is_edm', 'is_latin', 'is_rnb']
 X = df[features]
 y = df['track_popularity']
 """
@@ -114,9 +117,13 @@ st.code(code, language='python')
 df['is_rap'] = (df['playlist_genre'] == 'rap').astype(int)
 df['is_pop'] = (df['playlist_genre'] == 'pop').astype(int)
 df['is_rock'] = (df['playlist_genre'] == 'rock').astype(int)
-features = ['danceability', 'energy', 'speechiness', 'acousticness', 'valence', 'is_rap', 'is_pop', 'is_rock']
+df['is_edm'] = (df['playlist_genre'] == 'edm').astype(int)
+df['is_latin'] = (df['playlist_genre'] == 'latin').astype(int)
+df['is_rnb'] = (df['playlist_genre'] == 'rnb').astype(int)
+features = ['danceability', 'energy', 'speechiness', 'acousticness', 'valence']+['is_rap', 'is_pop', 'is_rock', 'is_edm', 'is_latin', 'is_rnb']
 X = df[features]
 y = df['track_popularity']
+st.write("Our final dataset is significantly cleaned up and now excludes the consideration of the various identified outliers")
 st.dataframe(df.describe())
 
 # Data Splitting
@@ -138,19 +145,22 @@ X_test = scaler.transform(X_test)
 # Model Training and Evaluation
 st.subheader("Model Training")
 
+
+st.subtitle("Baseline Model")
 """For my baseline model, I chose to use a mean effectively implying no correlation between the two. Further, I chose to use mean squared error or MSE as my benchmark of the "best" model."""
 
 # Baseline Model
+code = """#baseline_prediction = np.mean(df['track_popularity'])
+baseline_mse = mean_squared_error(y_test, [baseline_prediction] * len(y_test))
+"""
+st.code(code, language='python')
 baseline_prediction = np.mean(df['track_popularity'])
 baseline_mse = mean_squared_error(y_test, [baseline_prediction] * len(y_test))
 baseline_r2 = r2_score(y_test, [baseline_prediction] * len(y_test))
+st.write(f"Baseline Model MSE: {baseline_mse}")
 
-print(f"Baseline Model - MSE: {baseline_mse}")
-
-"""The implied MSE of 418 is quite high, but that's to be expected. Looking next at the linear regression, this is a very simple regression and unlikely to work. While it may not capture the full complexity of the data, it establishes a clear baseline for comparison against more advanced models.
-
-"""
-
+st.write(f"The implied MSE of {baseline_mse} is quite high, but that's to be expected. Looking next at the linear regression, this is a very simple regression and unlikely to work. While it may not capture the full complexity of the data, it establishes a clear baseline for comparison against more advanced models.")
+st.subtitle("Regression Model")
 #Linear Regression
 code = """# Linear Regression
 model = LinearRegression()
@@ -170,11 +180,10 @@ feature_importance = pd.DataFrame({'Feature': features, 'Importance': abs(model.
 feature_importance = feature_importance.sort_values(by='Importance', ascending=False)
 st.dataframe(feature_importance)
 
-"""Unfortunately our MSE did not significantly improved, however, we do gain some interesting insights through the feature importance. The leading factor is not a necessarily an innate musical feature but rather whether or not if it is in the pop genre. Our decreased MSE is not to be unexpected, it's to be exected that many different factors affect the popularity of asong and to an extent, they also affect each other. For instance, being in the pop genre would imply a certain level of lyricism.
+st.write("Unfortunately our MSE did not significantly improve, however, we do gain some interesting insights through the feature importance. The leading factor is not a necessarily an innate musical feature but rather whether or not if it is in the pop genre. Our decreased MSE is not to be unexpected, it's to be exected that many different factors affect the popularity of asong and to an extent, they also affect each other. For instance, being in the pop genre would imply a certain level of lyricism.")
 
-Next is the random forest model. I have the highest hope for this model given the seemingly non-linear relationship between the variables and the popularity variable. Random Forest effectively models complex, non-linear relationship so therefore, this shoudl yield a better result.
-"""
-
+st.subtitle("Random Forest Model")
+st.write("Next is the random forest model. I have the highest hope for this model given the seemingly non-linear relationship between the variables and the popularity variable. Random Forest effectively models complex, non-linear relationship so therefore, this shoudl yield a better result.")")
 # Random Forest Model
 code = """# Random Forest Model
 rf_model = RandomForestRegressor(random_state=42, n_estimators=100)
@@ -195,8 +204,9 @@ feature_importance_rf = feature_importance_rf.sort_values(by='Importance', ascen
 print("\nFeature Importance (Random Forest):")
 st.dataframe(feature_importance_rf)
 
-"""As we predicted, the MSE is *significantly* lower than any other model. The Random Forest model highlights that audio attributes, especially acousticness, speechiness, and valence, are the strongest predictors of track_popularity, contrary to every other model. Binary genre features contribute minimally, suggesting that song characteristics outweigh genre classification in determining popularity. This is particularly interesting given how different of a result it provdies compared to every single other model. Overall, this was the most successful model out of all and was most capable of predicting accurately."""
+st.write("""As we predicted, the MSE is *significantly* lower than any other model. The Random Forest model highlights that audio attributes, especially acousticness, speechiness, and valence, are the strongest predictors of track_popularity, contrary to every other model. Binary genre features contribute minimally, suggesting that song characteristics outweigh genre classification in determining popularity. This is particularly interesting given how different of a result it provdies compared to every single other model. Overall, this was the most successful model out of all and was most capable of predicting accurately.""")
 
+st.subtitle("KNN Model")
 # Initialize and train a KNN regressor model
 knn_model = KNeighborsRegressor(n_neighbors=50)
 knn_model.fit(X_train, y_train)
@@ -214,6 +224,7 @@ pd.DataFrame({'Feature': X.columns, 'Importance': perm.importances_mean})
 
 """The results for KNN were disappointing. KNN’s high MSE even compared to the baseline and regression, and low feature importance values indicate that it is not well-suited for this particular dataset and the many confounding variables that exist. The lack of localized patterns most likely hindered this model's performance. The struggle to generalize really hurt."""
 
+st.subtitle("Decision Tree Model")
 tree_model = DecisionTreeRegressor(random_state=42, max_depth=4)
 tree_model.fit(X_train, y_train)
 
@@ -234,22 +245,20 @@ feature_importance_tree = feature_importance_tree.sort_values(by='Importance', a
 print("\nFeature Importance (Decision Tree):")
 feature_importance_tree
 
-"""The MSE for the decision tree was in the same ball park as the other models, outside of RFM.  One key issue is the reliance on a small number of dominant features, particularly acousticness and is_pop, while completely ignoring others like speechiness, valence, and is_rap. This overemphasis on a few features probably led to overfitting, where the model performed well on the training set but failed to generalize on the test set.
+st.write("The MSE for the decision tree was in the same ball park as the other models, outside of RFM.  One key issue is the reliance on a small number of dominant features, particularly acousticness and is_pop, while completely ignoring others like speechiness, valence, and is_rap. This overemphasis on a few features probably led to overfitting, where the model performed well on the training set but failed to generalize on the test set.")
 
-# **Conclusion:**
-In this analysis, we explored various predictive models—including Linear Regression, Multiple Regression, Random Forest, K-Nearest Neighbors (KNN), and Decision Tree—to understand what factors might influence a song's popularity. While none of the models produced exceptionally low MSEs, this outcome aligns with the initial expectations of the project. Predicting song popularity is inherently complex, as external factors like marketing, cultural influence, and artist fame play a significant role—elements that cannot be captured purely through numerical and genre-based features. While the models themselves were not great at predicting the popularity of the songs, we were able to very rouhgly figure out what might aid.
+st.subtitle("Conclusion/Next Steps:")
+st.write("""In this analysis, we explored various predictive models—including Linear Regression, Multiple Regression, Random Forest, K-Nearest Neighbors (KNN), and Decision Tree—to understand what factors might influence a song's popularity. While none of the models produced exceptionally low MSEs, this outcome aligns with the initial expectations of the project. Predicting song popularity is inherently complex, as external factors like marketing, cultural influence, and artist fame play a significant role—elements that cannot be captured purely through numerical and genre-based features. While the models themselves were not great at predicting the popularity of the songs, we were able to very rouhgly figure out what might aid.
 
 However, a couple key factors did appear. **Acousticness and danceability** were particularly strong in relation to the other factors when conducitng feature importance, with stronger correlation with popularity, particularly in the Decision Tree and Random Forest models. Further, being a **pop song**, while weak as an absolute measure, stood out amongst all genres that were tested. This alings rather strongly with general sentiment on music today.
 
-On a broader level, I learned the importance of balancing model complexity with interpretability. Random Forest consistently outperformed others, demonstrating the power of ensemble methods to capture non-linear relationships, while simpler models like Linear Regression established a baseline for comparison.
+On a broader level, I learned the importance of balancing model complexity with interpretability. Random Forest consistently outperformed others, demonstrating the power of ensemble methods to capture non-linear relationships, while simpler models like Linear Regression established a baseline for comparison.""")
 
-# **Next Steps:**
-I've always enjoyed music for the actual intrinsic values, however, when looking at modern popular music obviously other factors must come into play. I hope to examine more external variables such as artist recognition, playlist placements, streaming counts, and release date trends in a future project. These would more likley be stronger predictive factors than the intrinsic factors we looked at today.
+st.write("""I've always enjoyed music for the actual intrinsic values, however, when looking at modern popular music obviously other factors must come into play. I hope to examine more external variables such as artist recognition, playlist placements, streaming counts, and release date trends in a future project. These would more likley be stronger predictive factors than the intrinsic factors we looked at today.
 
 Further, I think looking on a time horizon such as analyzing how popularity changes over time by incorporating release year or weekly streaming trends could be really interesting, and seeing what sparks the interest in a song. A time-series analysis could capture evolving audience preferences and seasonal effects.
 
-Lastly, I think I want to simplify this project: I had many, many variables throughout the whole project which really made modeling and predicting quite difficult. Down the road, maybe looking at one artist, or songs from one period and analyzing what qualities make them attractive would trul be able to provide strong predictive power.
+Lastly, I think I want to simplify this project: I had many, many variables throughout the whole project which really made modeling and predicting quite difficult. Down the road, maybe looking at one artist, or songs from one period and analyzing what qualities make them attractive would trul be able to provide strong predictive power.""")
 
-# **Final Thoughts**
-From a learning perspective, this was easily the most complex project I've had to do, combining everythign we've learned over the last year and trying to extrapolate that into this project. While my results unfortunately didn't create the idealized beautiful model that I hoped to have made, it did confirm my initial suspicions which is just as good of a result in my eyes and I deeply enjoyed the process of figuring out the answer to my hypothesis. Overall, I'm excited to acutally expand on this project over the winter and hopefully find some interesting results within the music space!
-"""
+st.subtitle("Final Thoughts:")
+st.write(""From a learning perspective, this was easily the most complex project I've had to do, combining everythign we've learned over the last year and trying to extrapolate that into this project. While my results unfortunately didn't create the idealized beautiful model that I hoped to have made, it did confirm my initial suspicions which is just as good of a result in my eyes and I deeply enjoyed the process of figuring out the answer to my hypothesis. Overall, I'm excited to acutally expand on this project over the winter and hopefully find some interesting results within the music space!"")
